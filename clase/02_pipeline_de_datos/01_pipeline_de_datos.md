@@ -11,7 +11,7 @@ title: "Pipeline de Datos"
 
 
 
-:::homework{id="A.1.1" title="Ver videos de Sistemas Operativos y entenderlos" due="2026-01-20" points="0"}
+:::homework{id="01.01" title="Ver videos de Sistemas Operativos y entenderlos" due="2026-01-20" points="10"}
 Ver los siguientes videos y entender los conceptos de Sistemas Operativos:
 https://www.youtube.com/watch?v=26QPDBe-NB8 
 https://www.youtube.com/watch?v=KN8YgJnShPM&list=PL8dPuuaLjXtNlUrzyH5r6jN9ulIgZBpdo&index=21
