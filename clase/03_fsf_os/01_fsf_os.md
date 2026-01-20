@@ -1,13 +1,12 @@
 ---
 title: "Pipeline de Datos"
 ---
-
 {% from "components/pdf.njk" import render as pdf %}
 
-{{ pdf('/02_pipeline_de_datos/01_pipeline_de_datos.pdf', 'Presentación: Pipeline de Datos') }}
+{{ pdf('/03_fsf_os/03_fsf_gnu_os_ linux.pdf', 'Presentación: GNU/Linux y Free Software') }}
 
 
-[📊 Pipeline de Datos](https://docs.google.com/presentation/d/1ylhivMWyQ_SkUKDa3p7U0PNerSkqmjjqjJ5HCObzE5U/edit?usp=sharing)
+[📊 Pipeline de Datos](https://docs.google.com/presentation/d/1aS3vSt-d9xgM1BhLc1ORwTGmrlzs1P8SBI5UEaFmBv0/edit?usp=sharing)
 
 
 
