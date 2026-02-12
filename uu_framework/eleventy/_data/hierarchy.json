@@ -524,6 +524,20 @@
           "summary": null
         },
         {
+          "name": "example",
+          "path": "08_containers/example",
+          "type": "directory",
+          "order": [
+            2,
+            999,
+            0,
+            "example"
+          ],
+          "children": [],
+          "has_index": false,
+          "title": "Example"
+        },
+        {
           "name": "scripts",
           "path": "08_containers/scripts",
           "type": "directory",

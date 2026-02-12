@@ -4,19 +4,20 @@ analyze.py — Lee los CSVs de benchmarks y genera gráficas PNG.
 
 Uso: python3 analyze.py
 Requiere: matplotlib (pip install matplotlib)
-Lee de: results/*.csv
-Escribe en: results/*.png
+Lee de: results/exp1_startup.csv, results/exp2_scale.csv, results/exp3_runtime.csv
+Escribe en: results/*.png e images/*.png
 """
 
 import csv
-import os
+import statistics
 import sys
 from pathlib import Path
 
 try:
     import matplotlib
-    matplotlib.use("Agg")  # Backend sin GUI
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
 except ImportError:
     print("Error: matplotlib no está instalado.")
     print("Instálalo con: pip install matplotlib")
@@ -25,7 +26,7 @@ except ImportError:
 RESULTS_DIR = Path(__file__).parent / "results"
 IMAGES_DIR = Path(__file__).parent.parent / "images"
 
-# Colores consistentes para cada runtime
+# Colores consistentes
 COLORS = {
     "bare": "#6c757d",
     "docker": "#0db7ed",
@@ -50,11 +51,10 @@ def read_csv(filename):
 
 
 def save_fig(fig, name):
-    """Guarda una figura como PNG en results/ y en images/ (para el sitio web)."""
+    """Guarda una figura como PNG en results/ y en images/."""
     path = RESULTS_DIR / name
     fig.savefig(path, dpi=150, bbox_inches="tight", facecolor="#1a1a2e")
     print(f"  Guardado: {path}")
-    # También guardar en images/ para que Eleventy lo copie al sitio
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
     img_path = IMAGES_DIR / name
     fig.savefig(img_path, dpi=150, bbox_inches="tight", facecolor="#1a1a2e")
@@ -72,178 +72,86 @@ def style_ax(ax, title, ylabel):
         spine.set_color("#333")
 
 
-def plot_startup():
-    """Gráfica 1: Comparación de tiempos de startup."""
-    rows = read_csv("startup.csv")
+def median_iqr(values):
+    """Retorna mediana, Q1, Q3."""
+    if not values:
+        return 0, 0, 0
+    med = statistics.median(values)
+    q1 = statistics.median(sorted(values)[:len(values) // 2]) if len(values) > 1 else med
+    q3 = statistics.median(sorted(values)[-(len(values) // 2):]) if len(values) > 1 else med
+    return med, q1, q3
+
+
+def plot_exp1_startup():
+    """Exp 1: Grouped bar chart — 5 bars (bare, docker/ubuntu, docker/alpine,
+    podman/ubuntu, podman/alpine), median + IQR whiskers."""
+    rows = read_csv("exp1_startup.csv")
     if not rows:
         return
 
-    # Agrupar por runtime y calcular promedios
+    # Group by (runtime, image)
     data = {}
     for row in rows:
-        rt = row["runtime"]
+        key = (row["runtime"], row["image"])
         try:
-            val = float(row["value"])
+            data.setdefault(key, []).append(float(row["startup_ms"]))
         except (ValueError, KeyError):
             continue
-        data.setdefault(rt, []).append(val)
 
     if not data:
         return
 
-    runtimes = sorted(data.keys(), key=lambda x: {"bare": 0, "docker": 1, "podman": 2}.get(x, 9))
-    means = [sum(data[r]) / len(data[r]) for r in runtimes]
-    colors = [COLORS.get(r, "#aaa") for r in runtimes]
-    labels = [LABELS.get(r, r) for r in runtimes]
+    # Order: bare, docker/ubuntu, docker/alpine, podman/ubuntu, podman/alpine
+    order = [
+        ("bare", "none"),
+        ("docker", "ubuntu"), ("docker", "alpine"),
+        ("podman", "ubuntu"), ("podman", "alpine"),
+    ]
+    keys = [k for k in order if k in data]
+    labels = []
+    for rt, img in keys:
+        if rt == "bare":
+            labels.append("Bare Metal")
+        else:
+            labels.append(f"{rt.title()}\n{img.title()}")
 
-    fig, ax = plt.subplots(figsize=(8, 5), facecolor="#1a1a2e")
-    bars = ax.bar(labels, means, color=colors, edgecolor="#333", linewidth=0.5)
-    style_ax(ax, "Startup Latency", "Tiempo (ms)")
+    medians = []
+    q1s = []
+    q3s = []
+    colors = []
+    for k in keys:
+        med, q1, q3 = median_iqr(data[k])
+        medians.append(med)
+        q1s.append(q1)
+        q3s.append(q3)
+        colors.append(COLORS.get(k[0], "#aaa"))
 
-    for bar, val in zip(bars, means):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(means) * 0.02,
-                f"{val:.1f} ms", ha="center", va="bottom", color="white", fontsize=10)
-
-    save_fig(fig, "startup_comparison.png")
-
-
-def plot_memory():
-    """Gráfica 2: Comparación de memoria."""
-    rows = read_csv("memory.csv")
-    if not rows:
-        return
-
-    # Extraer overhead por runtime y count
-    data = {}
-    for row in rows:
-        rt = row["runtime"]
-        metric = row["metric"]
-        if "overhead" not in metric:
-            continue
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
-            continue
-        # Extraer count del metric name: containers_5_overhead_mb -> 5
-        parts = metric.split("_")
-        count = parts[1] if len(parts) >= 3 else "?"
-        data.setdefault(rt, {})[count] = val
-
-    if not data:
-        return
+    # Whisker errors: lower = med - q1, upper = q3 - med
+    yerr_low = [m - q for m, q in zip(medians, q1s)]
+    yerr_high = [q - m for m, q in zip(medians, q3s)]
 
     fig, ax = plt.subplots(figsize=(10, 5), facecolor="#1a1a2e")
-    x_labels = sorted({c for d in data.values() for c in d}, key=lambda c: int(c) if c.isdigit() else 0)
-    width = 0.35
-    x = range(len(x_labels))
+    bars = ax.bar(range(len(keys)), medians, color=colors,
+                  edgecolor="#333", linewidth=0.5,
+                  yerr=[yerr_low, yerr_high], capsize=5,
+                  error_kw={"color": "white", "linewidth": 1.2})
 
-    for i, rt in enumerate(["docker", "podman"]):
-        if rt not in data:
-            continue
-        vals = [data[rt].get(c, 0) for c in x_labels]
-        offset = (i - 0.5) * width
-        bars = ax.bar([xi + offset for xi in x], vals,
-                      width=width, label=LABELS.get(rt, rt),
-                      color=COLORS.get(rt, "#aaa"), edgecolor="#333", linewidth=0.5)
-        for bar, val in zip(bars, vals):
-            if val > 0:
-                ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
-                        f"{val:.0f}", ha="center", va="bottom", color="white", fontsize=9)
+    for bar, med in zip(bars, medians):
+        ax.text(bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + max(medians) * 0.04,
+                f"{med:.1f} ms", ha="center", va="bottom",
+                color="white", fontsize=10)
 
-    ax.set_xticks(list(x))
-    ax.set_xticklabels([f"{c} cont." for c in x_labels])
-    ax.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
-    style_ax(ax, "Memory Overhead por Número de Contenedores", "Overhead (MB)")
+    ax.set_xticks(range(len(keys)))
+    ax.set_xticklabels(labels, fontsize=10, color="white")
+    style_ax(ax, "Exp 1: Startup Latency (mediana + IQR)", "Tiempo (ms)")
 
-    save_fig(fig, "memory_comparison.png")
+    save_fig(fig, "exp1_startup.png")
 
 
-def plot_cpu():
-    """Gráfica 3: Comparación de CPU."""
-    rows = read_csv("cpu.csv")
-    if not rows:
-        return
-
-    data = {}
-    for row in rows:
-        rt = row["runtime"]
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
-            continue
-        data.setdefault(rt, []).append(val)
-
-    if not data:
-        return
-
-    runtimes = sorted(data.keys(), key=lambda x: {"bare": 0, "docker": 1, "podman": 2}.get(x, 9))
-    means = [sum(data[r]) / len(data[r]) for r in runtimes]
-    colors = [COLORS.get(r, "#aaa") for r in runtimes]
-    labels = [LABELS.get(r, r) for r in runtimes]
-
-    fig, ax = plt.subplots(figsize=(8, 5), facecolor="#1a1a2e")
-    bars = ax.bar(labels, means, color=colors, edgecolor="#333", linewidth=0.5)
-    style_ax(ax, "CPU Benchmark (contar hasta 10M)", "Tiempo (segundos)")
-
-    for bar, val in zip(bars, means):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(means) * 0.02,
-                f"{val:.2f}s", ha="center", va="bottom", color="white", fontsize=10)
-
-    save_fig(fig, "cpu_comparison.png")
-
-
-def plot_io():
-    """Gráfica 4: Comparación de I/O."""
-    rows = read_csv("io.csv")
-    if not rows:
-        return
-
-    data = {}
-    for row in rows:
-        rt = row["runtime"]
-        mode = row["mode"]
-        try:
-            val = float(row["mb_per_sec"])
-        except (ValueError, KeyError):
-            continue
-        key = f"{rt}_{mode}"
-        data.setdefault(key, []).append(val)
-
-    if not data:
-        return
-
-    fig, ax = plt.subplots(figsize=(10, 5), facecolor="#1a1a2e")
-
-    # Agrupar por modo
-    modes = ["direct", "overlay", "volume"]
-    mode_labels = {"direct": "Directo", "overlay": "Overlay FS", "volume": "Volume Mount"}
-    runtimes = ["bare", "docker", "podman"]
-    width = 0.25
-
-    for i, rt in enumerate(runtimes):
-        vals = []
-        x_positions = []
-        for j, mode in enumerate(modes):
-            key = f"{rt}_{mode}"
-            if key in data:
-                vals.append(sum(data[key]) / len(data[key]))
-                x_positions.append(j + (i - 1) * width)
-        if vals:
-            ax.bar(x_positions, vals, width=width,
-                   label=LABELS.get(rt, rt), color=COLORS.get(rt, "#aaa"),
-                   edgecolor="#333", linewidth=0.5)
-
-    ax.set_xticks(range(len(modes)))
-    ax.set_xticklabels([mode_labels.get(m, m) for m in modes])
-    ax.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
-    style_ax(ax, "Disk I/O: Escritura de 100MB", "Velocidad (MB/s)")
-
-    save_fig(fig, "io_comparison.png")
-
-
-def plot_scale():
-    """Gráfica 5: Escalamiento de memoria."""
-    rows = read_csv("scale.csv")
+def plot_exp2_scale():
+    """Exp 2: 2 panels — launch time vs N (lines), per-container KB + daemon RSS."""
+    rows = read_csv("exp2_scale.csv")
     if not rows:
         return
 
@@ -252,320 +160,189 @@ def plot_scale():
         rt = row["runtime"]
         try:
             count = int(row["count"])
-            mem = float(row["memory_mb"])
-            time_s = float(row["time_seconds"])
+            launch = float(row["launch_time_s"])
+            per_kb = float(row["per_container_kb"])
+            daemon_kb = float(row["daemon_rss_kb"])
         except (ValueError, KeyError):
             continue
-        data.setdefault(rt, {"counts": [], "memory": [], "time": []})
+        data.setdefault(rt, {"counts": [], "launch": [], "per_kb": [], "daemon_kb": []})
         data[rt]["counts"].append(count)
-        data[rt]["memory"].append(mem)
-        data[rt]["time"].append(time_s)
+        data[rt]["launch"].append(launch)
+        data[rt]["per_kb"].append(per_kb)
+        data[rt]["daemon_kb"].append(daemon_kb)
 
     if not data:
         return
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1a1a2e")
 
+    # Panel 1: Launch time vs N
     for rt in ["docker", "podman"]:
         if rt not in data:
             continue
         d = data[rt]
-        ax1.plot(d["counts"], d["memory"], "o-",
-                 color=COLORS.get(rt, "#aaa"), label=LABELS.get(rt, rt),
+        ax1.plot(d["counts"], d["launch"], "o-",
+                 color=COLORS.get(rt), label=LABELS.get(rt),
                  linewidth=2, markersize=8)
-        ax2.plot(d["counts"], d["time"], "o-",
-                 color=COLORS.get(rt, "#aaa"), label=LABELS.get(rt, rt),
-                 linewidth=2, markersize=8)
+        for x, y in zip(d["counts"], d["launch"]):
+            ax1.text(x, y + max(d["launch"]) * 0.04,
+                     f"{y:.2f}s", ha="center", va="bottom",
+                     color="white", fontsize=9)
 
-    style_ax(ax1, "Memoria vs Contenedores", "Overhead Memoria (MB)")
-    ax1.set_xlabel("Número de contenedores", color="white", fontsize=11)
+    style_ax(ax1, "Launch Time vs Contenedores", "Tiempo (s)")
+    ax1.set_xlabel("Contenedores", color="white", fontsize=11)
     ax1.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
 
-    style_ax(ax2, "Tiempo de Arranque vs Contenedores", "Tiempo Total (s)")
-    ax2.set_xlabel("Número de contenedores", color="white", fontsize=11)
-    ax2.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
-
-    save_fig(fig, "scale_memory.png")
-
-
-def plot_cpu_exec():
-    """Gráfica 7: CPU puro (exec) — comparación con/sin startup."""
-    rows = read_csv("cpu_exec.csv")
-    if not rows:
-        return
-
-    # Datos de exec
-    exec_data = {}
-    for row in rows:
-        rt = row["runtime"]
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
-            continue
-        exec_data.setdefault(rt, []).append(val)
-
-    if not exec_data:
-        return
-
-    # También leer datos originales de cpu.csv para comparación
-    run_data = {}
-    run_rows = read_csv("cpu.csv")
-    for row in run_rows:
-        rt = row["runtime"]
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
-            continue
-        run_data.setdefault(rt, []).append(val)
-
-    runtimes = sorted(exec_data.keys(), key=lambda x: {"bare": 0, "docker": 1, "podman": 2}.get(x, 9))
-    exec_means = {r: sum(exec_data[r]) / len(exec_data[r]) for r in runtimes}
-    colors = [COLORS.get(r, "#aaa") for r in runtimes]
-    labels = [LABELS.get(r, r) for r in runtimes]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1a1a2e")
-
-    # Panel 1: Tiempos exec
-    means_list = [exec_means[r] for r in runtimes]
-    bars = ax1.bar(labels, means_list, color=colors, edgecolor="#333", linewidth=0.5)
-    style_ax(ax1, "CPU Puro (exec, contar hasta 1M)", "Tiempo (segundos)")
-    for bar, val in zip(bars, means_list):
-        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(means_list) * 0.02,
-                 f"{val:.2f}s", ha="center", va="bottom", color="white", fontsize=10)
-
-    # Panel 2: Comparación overhead % (run vs exec)
-    if run_data:
-        run_means = {r: sum(run_data[r]) / len(run_data[r]) for r in run_data}
-        comparison_runtimes = [r for r in ["docker", "podman"] if r in exec_means and r in run_means]
-        if comparison_runtimes:
-            bare_run = run_means.get("bare", 1)
-            bare_exec = exec_means.get("bare", 1)
-
-            x = range(len(comparison_runtimes))
-            width = 0.35
-            run_overheads = [((run_means[r] - bare_run) / bare_run) * 100 for r in comparison_runtimes]
-            exec_overheads = [((exec_means[r] - bare_exec) / bare_exec) * 100 for r in comparison_runtimes]
-
-            bars1 = ax2.bar([xi - width / 2 for xi in x], run_overheads,
-                            width=width, label="docker run (con startup)",
-                            color="#e74c3c", edgecolor="#333", linewidth=0.5)
-            bars2 = ax2.bar([xi + width / 2 for xi in x], exec_overheads,
-                            width=width, label="docker exec (sin startup)",
-                            color="#2ecc71", edgecolor="#333", linewidth=0.5)
-
-            ax2.set_xticks(list(x))
-            ax2.set_xticklabels([LABELS.get(r, r) for r in comparison_runtimes])
-            ax2.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
-            style_ax(ax2, "Overhead CPU: run vs exec", "Overhead (%)")
-
-            for bar, val in zip(bars1, run_overheads):
-                ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
-                         f"{val:.1f}%", ha="center", va="bottom", color="white", fontsize=9)
-            for bar, val in zip(bars2, exec_overheads):
-                y_pos = bar.get_height() if bar.get_height() >= 0 else bar.get_height() - 1.5
-                ax2.text(bar.get_x() + bar.get_width() / 2, y_pos + 0.5,
-                         f"{val:.1f}%", ha="center", va="bottom", color="white", fontsize=9)
-
-    save_fig(fig, "cpu_exec_comparison.png")
-
-
-def plot_memory_cgroup():
-    """Gráfica 8: Memoria cgroup — per-container y daemon RSS."""
-    rows = read_csv("memory_cgroup.csv")
-    if not rows:
-        return
-
-    per_container = {}  # {runtime: {count: kb}}
-    daemon_rss = {}     # {runtime: {count: kb}}
-
-    for row in rows:
-        rt = row["runtime"]
-        metric = row["metric"]
-        try:
-            count = int(row["count"])
-            val = float(row["value"])
-        except (ValueError, KeyError):
-            continue
-
-        if metric == "per_container_kb":
-            per_container.setdefault(rt, {})[count] = val
-        elif metric in ("daemon_rss_kb", "conmon_rss_kb"):
-            daemon_rss.setdefault(rt, {})[count] = val
-
-    if not per_container:
-        return
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1a1a2e")
-
-    # Panel 1: Per-container KB bars grouped by runtime
-    counts = sorted({c for d in per_container.values() for c in d})
+    # Panel 2: Per-container KB (bars) + daemon RSS (line)
+    all_counts = sorted({c for d in data.values() for c in d["counts"]})
     width = 0.35
-    x = range(len(counts))
+    x = list(range(len(all_counts)))
 
     for i, rt in enumerate(["docker", "podman"]):
-        if rt not in per_container:
+        if rt not in data:
             continue
-        vals = [per_container[rt].get(c, 0) for c in counts]
+        d = data[rt]
+        count_to_kb = dict(zip(d["counts"], d["per_kb"]))
+        vals = [count_to_kb.get(c, 0) for c in all_counts]
         offset = (i - 0.5) * width
-        bars = ax1.bar([xi + offset for xi in x], vals,
-                       width=width, label=LABELS.get(rt, rt),
-                       color=COLORS.get(rt, "#aaa"), edgecolor="#333", linewidth=0.5)
+        bars = ax2.bar([xi + offset for xi in x], vals,
+                       width=width, label=f"{LABELS[rt]} /cont",
+                       color=COLORS.get(rt), edgecolor="#333", linewidth=0.5,
+                       alpha=0.8)
         for bar, val in zip(bars, vals):
             if val > 0:
-                ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 10,
-                         f"{val:.0f}", ha="center", va="bottom", color="white", fontsize=9)
+                ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 10,
+                         f"{val:.0f}", ha="center", va="bottom",
+                         color="white", fontsize=8)
 
-    ax1.set_xticks(list(x))
-    ax1.set_xticklabels([f"{c} cont." for c in counts])
-    ax1.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
-    style_ax(ax1, "Memoria por Contenedor (cgroup)", "KB por contenedor")
-
-    # Panel 2: Daemon/conmon RSS line chart vs container count
+    # Daemon RSS as secondary y-axis
+    ax2b = ax2.twinx()
     for rt in ["docker", "podman"]:
-        if rt not in daemon_rss:
+        if rt not in data:
             continue
-        d = daemon_rss[rt]
-        x_vals = sorted(d.keys())
-        y_vals = [d[c] / 1024 for c in x_vals]  # Convert KB to MB
-        label = "dockerd RSS" if rt == "docker" else "conmon RSS"
-        ax2.plot(x_vals, y_vals, "o-",
-                 color=COLORS.get(rt, "#aaa"), label=label,
-                 linewidth=2, markersize=8)
-        for xv, yv in zip(x_vals, y_vals):
-            ax2.text(xv, yv + max(y_vals) * 0.03,
-                     f"{yv:.1f}", ha="center", va="bottom", color="white", fontsize=9)
+        d = data[rt]
+        count_to_daemon = dict(zip(d["counts"], d["daemon_kb"]))
+        daemon_vals = [count_to_daemon.get(c, 0) / 1024 for c in all_counts]  # MB
+        ax2b.plot(x, daemon_vals, "s--",
+                  color=COLORS.get(rt), label=f"{LABELS[rt]} daemon RSS",
+                  linewidth=1.5, markersize=6, alpha=0.7)
 
-    style_ax(ax2, "Daemon/Conmon RSS vs Contenedores", "RSS (MB)")
-    ax2.set_xlabel("Número de contenedores", color="white", fontsize=11)
-    ax2.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([str(c) for c in all_counts], color="white")
+    ax2.set_xlabel("Contenedores", color="white", fontsize=11)
+    style_ax(ax2, "Memoria: cgroup + daemon RSS", "KB por contenedor")
+    ax2b.set_ylabel("Daemon/Conmon RSS (MB)", color="white", fontsize=10)
+    ax2b.tick_params(colors="white")
 
-    save_fig(fig, "memory_cgroup_comparison.png")
+    # Combined legend
+    h1, l1 = ax2.get_legend_handles_labels()
+    h2, l2 = ax2b.get_legend_handles_labels()
+    ax2.legend(h1 + h2, l1 + l2, facecolor="#16213e", edgecolor="#333",
+               labelcolor="white", fontsize=8, loc="upper left")
+
+    save_fig(fig, "exp2_scale.png")
 
 
-def plot_nested_v2():
-    """Gráfica 9: Nested v2 — 6 enfoques con resultado."""
-    rows = read_csv("nested_v2.csv")
+def plot_exp3_runtime():
+    """Exp 3: 2 panels — grouped bars per workload + overhead % comparison."""
+    rows = read_csv("exp3_runtime.csv")
     if not rows:
         return
 
-    approaches = []
-    times = []
-    colors_list = []
-    results = []
-
+    # Group by (runtime, workload)
+    data = {}
     for row in rows:
-        rt = row["runtime"]
-        approach = row["approach"]
-        result = row["result"]
+        key = (row["runtime"], row["workload"])
         try:
-            time_s = float(row["time_seconds"])
+            data.setdefault(key, []).append(float(row["time_s"]))
         except (ValueError, KeyError):
-            time_s = 0
+            continue
 
-        label = f"{rt}\n{approach}"
-        approaches.append(label)
-        results.append(result)
-
-        if result == "success":
-            times.append(time_s)
-            colors_list.append("#2ecc71")  # green
-        else:
-            times.append(0.5)  # small bar for visibility
-            colors_list.append("#e74c3c")  # red
-
-    if not approaches:
+    if not data:
         return
 
-    fig, ax = plt.subplots(figsize=(12, 5), facecolor="#1a1a2e")
-    bars = ax.bar(range(len(approaches)), times, color=colors_list,
-                  edgecolor="#333", linewidth=0.5)
+    workloads = ["hash", "sort"]
+    runtimes = ["bare", "docker", "podman"]
+    workload_labels = {"hash": "Hash (SHA-256)", "sort": "Sort (1M ints)"}
 
-    for bar, result, time_s, orig_row in zip(bars, results, times, rows):
-        if result == "success":
-            try:
-                real_time = float(orig_row["time_seconds"])
-            except (ValueError, KeyError):
-                real_time = time_s
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                    f"{real_time:.1f}s", ha="center", va="bottom", color="#2ecc71",
-                    fontsize=10, fontweight="bold")
-        else:
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                    result.upper(), ha="center", va="bottom", color="#e74c3c",
-                    fontsize=10, fontweight="bold")
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1a1a2e")
 
-    ax.set_xticks(range(len(approaches)))
-    ax.set_xticklabels(approaches, fontsize=8, color="white")
-    style_ax(ax, "Nested Containers: 6 Enfoques", "Tiempo (segundos)")
+    # Panel 1: Grouped bars — median time per workload
+    width = 0.25
+    for wi, wl in enumerate(workloads):
+        ax = ax1
+        x_base = wi * (len(runtimes) + 1)
+        for ri, rt in enumerate(runtimes):
+            key = (rt, wl)
+            vals = data.get(key, [])
+            if not vals:
+                continue
+            med = statistics.median(vals)
+            x_pos = x_base + ri
+            bar = ax.bar(x_pos, med, width=0.7,
+                         color=COLORS.get(rt, "#aaa"),
+                         edgecolor="#333", linewidth=0.5)
+            ax.text(x_pos, med + 0.03,
+                    f"{med:.3f}s", ha="center", va="bottom",
+                    color="white", fontsize=9)
+
+    # X-axis labels
+    tick_positions = []
+    tick_labels = []
+    for wi, wl in enumerate(workloads):
+        x_base = wi * (len(runtimes) + 1)
+        tick_positions.append(x_base + 1)  # center of 3 bars
+        tick_labels.append(workload_labels[wl])
+
+    ax1.set_xticks(tick_positions)
+    ax1.set_xticklabels(tick_labels, color="white", fontsize=11)
+    style_ax(ax1, "Tiempo de Ejecución (mediana)", "Tiempo (s)")
 
     # Legend
     from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor="#2ecc71", edgecolor="#333", label="Success"),
-                       Patch(facecolor="#e74c3c", edgecolor="#333", label="Error/Skipped")]
-    ax.legend(handles=legend_elements, facecolor="#16213e", edgecolor="#333", labelcolor="white")
+    legend_elements = [Patch(facecolor=COLORS[rt], edgecolor="#333",
+                             label=LABELS[rt]) for rt in runtimes]
+    ax1.legend(handles=legend_elements, facecolor="#16213e",
+               edgecolor="#333", labelcolor="white")
 
-    save_fig(fig, "nested_v2_comparison.png")
-
-
-def plot_summary():
-    """Gráfica 6: Resumen general combinado."""
-    # Recolectar métricas principales
-    metrics = {}
-
-    # Startup
-    rows = read_csv("startup.csv")
-    for row in rows:
-        rt = row["runtime"]
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
+    # Panel 2: Overhead % per workload
+    overhead_data = {}
+    for wl in workloads:
+        bare_vals = data.get(("bare", wl), [])
+        if not bare_vals:
             continue
-        metrics.setdefault("startup", {}).setdefault(rt, []).append(val)
+        bare_med = statistics.median(bare_vals)
+        for rt in ["docker", "podman"]:
+            vals = data.get((rt, wl), [])
+            if not vals:
+                continue
+            med = statistics.median(vals)
+            pct = ((med - bare_med) / bare_med) * 100
+            overhead_data.setdefault(rt, {})[wl] = pct
 
-    # CPU
-    rows = read_csv("cpu.csv")
-    for row in rows:
-        rt = row["runtime"]
-        try:
-            val = float(row["value"])
-        except (ValueError, KeyError):
+    x = list(range(len(workloads)))
+    for ri, rt in enumerate(["docker", "podman"]):
+        if rt not in overhead_data:
             continue
-        metrics.setdefault("cpu", {}).setdefault(rt, []).append(val)
+        vals = [overhead_data[rt].get(wl, 0) for wl in workloads]
+        offset = (ri - 0.5) * width * 2
+        bars = ax2.bar([xi + offset for xi in x], vals,
+                       width=width * 2, label=LABELS[rt],
+                       color=COLORS.get(rt), edgecolor="#333", linewidth=0.5)
+        for bar, val in zip(bars, vals):
+            y_pos = bar.get_height() if val >= 0 else bar.get_height() - 1.5
+            ax2.text(bar.get_x() + bar.get_width() / 2, y_pos + 0.5,
+                     f"{val:+.1f}%", ha="center", va="bottom",
+                     color="white", fontsize=10, fontweight="bold")
 
-    if not metrics:
-        return
+    ax2.axhline(y=0, color="#666", linewidth=0.8, linestyle="--")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([workload_labels[wl] for wl in workloads],
+                        color="white", fontsize=11)
+    ax2.legend(facecolor="#16213e", edgecolor="#333", labelcolor="white")
+    style_ax(ax2, "Overhead vs Bare Metal (%)", "Overhead (%)")
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1a1a2e")
-
-    # Panel 1: Startup
-    if "startup" in metrics:
-        ax = axes[0]
-        d = metrics["startup"]
-        runtimes = sorted(d.keys(), key=lambda x: {"bare": 0, "docker": 1, "podman": 2}.get(x, 9))
-        means = [sum(d[r]) / len(d[r]) for r in runtimes]
-        colors = [COLORS.get(r, "#aaa") for r in runtimes]
-        labels = [LABELS.get(r, r) for r in runtimes]
-        bars = ax.bar(labels, means, color=colors, edgecolor="#333", linewidth=0.5)
-        style_ax(ax, "Startup Latency", "Tiempo (ms)")
-        for bar, val in zip(bars, means):
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(means) * 0.02,
-                    f"{val:.0f}", ha="center", va="bottom", color="white", fontsize=10)
-
-    # Panel 2: CPU
-    if "cpu" in metrics:
-        ax = axes[1]
-        d = metrics["cpu"]
-        runtimes = sorted(d.keys(), key=lambda x: {"bare": 0, "docker": 1, "podman": 2}.get(x, 9))
-        means = [sum(d[r]) / len(d[r]) for r in runtimes]
-        colors = [COLORS.get(r, "#aaa") for r in runtimes]
-        labels = [LABELS.get(r, r) for r in runtimes]
-        bars = ax.bar(labels, means, color=colors, edgecolor="#333", linewidth=0.5)
-        style_ax(ax, "CPU Benchmark", "Tiempo (s)")
-        for bar, val in zip(bars, means):
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(means) * 0.02,
-                    f"{val:.1f}", ha="center", va="bottom", color="white", fontsize=10)
-
-    save_fig(fig, "summary.png")
+    save_fig(fig, "exp3_runtime.png")
 
 
 def print_summary():
@@ -574,90 +351,63 @@ def print_summary():
     print("  RESUMEN DE BENCHMARKS")
     print("=" * 60)
 
-    # Startup
-    rows = read_csv("startup.csv")
+    # Exp 1
+    rows = read_csv("exp1_startup.csv")
     if rows:
         data = {}
         for row in rows:
-            rt = row["runtime"]
+            key = f"{row['runtime']}/{row['image']}"
             try:
-                data.setdefault(rt, []).append(float(row["value"]))
+                data.setdefault(key, []).append(float(row["startup_ms"]))
             except (ValueError, KeyError):
                 pass
-        print("\nStartup Latency:")
-        for rt in ["bare", "docker", "podman"]:
-            if rt in data:
-                mean = sum(data[rt]) / len(data[rt])
-                print(f"  {LABELS.get(rt, rt):15s} {mean:8.1f} ms")
+        print("\nExp 1 — Startup Latency (mediana):")
+        for key in ["bare/none", "docker/ubuntu", "docker/alpine",
+                     "podman/ubuntu", "podman/alpine"]:
+            if key in data:
+                med = statistics.median(data[key])
+                print(f"  {key:20s} {med:8.1f} ms")
 
-    # CPU
-    rows = read_csv("cpu.csv")
+    # Exp 2
+    rows = read_csv("exp2_scale.csv")
     if rows:
-        data = {}
-        for row in rows:
-            rt = row["runtime"]
-            try:
-                data.setdefault(rt, []).append(float(row["value"]))
-            except (ValueError, KeyError):
-                pass
-        print("\nCPU (contar hasta 10M):")
-        for rt in ["bare", "docker", "podman"]:
-            if rt in data:
-                mean = sum(data[rt]) / len(data[rt])
-                print(f"  {LABELS.get(rt, rt):15s} {mean:8.2f} s")
-
-    # Scale
-    rows = read_csv("scale.csv")
-    if rows:
-        print("\nEscalamiento:")
+        print("\nExp 2 — Scale (launch time + memory):")
         for row in rows:
             try:
                 rt = row["runtime"]
                 count = row["count"]
-                time_s = float(row["time_seconds"])
-                mem = float(row["memory_mb"])
-                print(f"  {LABELS.get(rt, rt):15s} {count:>3s} contenedores: {time_s:6.1f}s, +{mem:.0f} MB")
+                launch = float(row["launch_time_s"])
+                per_kb = float(row["per_container_kb"])
+                daemon_kb = float(row["daemon_rss_kb"])
+                print(f"  {LABELS.get(rt, rt):10s} {count:>2s} cont: "
+                      f"{launch:6.2f}s, {per_kb:.0f} KB/cont, "
+                      f"daemon={daemon_kb:.0f} KB")
             except (ValueError, KeyError):
                 pass
 
-    # CPU Exec
-    rows = read_csv("cpu_exec.csv")
+    # Exp 3
+    rows = read_csv("exp3_runtime.csv")
     if rows:
         data = {}
         for row in rows:
-            rt = row["runtime"]
+            key = (row["runtime"], row["workload"])
             try:
-                data.setdefault(rt, []).append(float(row["value"]))
+                data.setdefault(key, []).append(float(row["time_s"]))
             except (ValueError, KeyError):
                 pass
-        print("\nCPU Exec (contar hasta 1M, sin startup):")
-        for rt in ["bare", "docker", "podman"]:
-            if rt in data:
-                mean = sum(data[rt]) / len(data[rt])
-                print(f"  {LABELS.get(rt, rt):15s} {mean:8.4f} s")
-
-    # Memory Cgroup
-    rows = read_csv("memory_cgroup.csv")
-    if rows:
-        print("\nMemoria Cgroup (por contenedor):")
-        for row in rows:
-            if row["metric"] == "per_container_kb":
-                rt = row["runtime"]
-                count = row["count"]
-                val = row["value"]
-                print(f"  {LABELS.get(rt, rt):15s} {count:>2s} cont: {val:>8s} KB/cont")
-
-    # Nested v2
-    rows = read_csv("nested_v2.csv")
-    if rows:
-        print("\nNested v2:")
-        for row in rows:
-            rt = row["runtime"]
-            approach = row["approach"]
-            result = row["result"]
-            time_s = row["time_seconds"]
-            symbol = "✓" if result == "success" else "✗"
-            print(f"  {symbol} {rt}/{approach}: {result} ({time_s}s)")
+        print("\nExp 3 — Runtime Overhead (mediana):")
+        for wl in ["hash", "sort"]:
+            print(f"  {wl}:")
+            bare_med = statistics.median(data.get(("bare", wl), [1]))
+            for rt in ["bare", "docker", "podman"]:
+                vals = data.get((rt, wl), [])
+                if vals:
+                    med = statistics.median(vals)
+                    if rt == "bare":
+                        print(f"    {LABELS.get(rt, rt):15s} {med:.4f}s")
+                    else:
+                        pct = ((med - bare_med) / bare_med) * 100
+                        print(f"    {LABELS.get(rt, rt):15s} {med:.4f}s ({pct:+.1f}%)")
 
     print("\n" + "=" * 60)
 
@@ -667,20 +417,14 @@ def main():
     print(f"Directorio de resultados: {RESULTS_DIR}")
     print()
 
-    plot_startup()
-    plot_memory()
-    plot_cpu()
-    plot_io()
-    plot_scale()
-    plot_cpu_exec()
-    plot_memory_cgroup()
-    plot_nested_v2()
-    plot_summary()
+    plot_exp1_startup()
+    plot_exp2_scale()
+    plot_exp3_runtime()
 
     print_summary()
 
     print("\nGráficas generadas:")
-    for png in sorted(RESULTS_DIR.glob("*.png")):
+    for png in sorted(RESULTS_DIR.glob("exp*.png")):
         print(f"  {png}")
 
 

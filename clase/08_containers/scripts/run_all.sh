@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_all.sh — Ejecuta todos los benchmarks y genera gráficas
+# run_all.sh — Ejecuta los 3 experimentos de benchmark y genera gráficas
 # Uso: bash run_all.sh
 # Requiere: docker y/o podman instalados, Python 3 con matplotlib para gráficas
 set -e
@@ -11,7 +11,7 @@ mkdir -p results
 
 echo "============================================"
 echo "  Benchmarks de Contenedores"
-echo "  Docker vs Podman vs Bare Metal"
+echo "  3 Experimentos: LAUNCH + CAPACITY + RUNNING"
 echo "============================================"
 echo ""
 
@@ -31,15 +31,9 @@ echo ""
 
 # Ejecutar cada benchmark
 BENCHMARKS=(
-    "bench_startup.sh:Startup Latency"
-    "bench_memory.sh:Memory Consumption"
-    "bench_cpu.sh:CPU Overhead"
-    "bench_io.sh:Disk I/O"
-    "bench_nested.sh:Nested Containers"
-    "bench_scale.sh:Scaling"
-    "bench_cpu_exec.sh:CPU Puro (exec)"
-    "bench_memory_cgroup.sh:Memory Cgroup"
-    "bench_nested_v2.sh:Nested Containers v2"
+    "bench_startup.sh:Exp 1 — Startup Latency (LAUNCH cost)"
+    "bench_scale.sh:Exp 2 — Resource Footprint at Scale (LAUNCH + CAPACITY)"
+    "bench_runtime.sh:Exp 3 — Runtime Overhead (RUNNING cost)"
 )
 
 for entry in "${BENCHMARKS[@]}"; do
@@ -47,7 +41,8 @@ for entry in "${BENCHMARKS[@]}"; do
     name="${entry##*:}"
 
     echo "--------------------------------------------"
-    echo "  $name ($script)"
+    echo "  $name"
+    echo "  ($script)"
     echo "--------------------------------------------"
 
     if [ -f "$script" ]; then
@@ -69,7 +64,7 @@ if command -v python3 &>/dev/null; then
         echo "Generando gráficas con analyze.py..."
         python3 analyze.py
         echo ""
-        echo "Gráficas generadas en results/"
+        echo "Gráficas generadas en results/ e images/"
     else
         echo "matplotlib no encontrado. Para generar gráficas:"
         echo "  pip install -r requirements.txt"
@@ -81,4 +76,4 @@ fi
 
 echo ""
 echo "Resultados CSV en: $SCRIPT_DIR/results/"
-ls -la results/*.csv 2>/dev/null || echo "(no se generaron CSVs)"
+ls -la results/exp*.csv 2>/dev/null || echo "(no se generaron CSVs)"

@@ -117,7 +117,7 @@
       "file": "07_regex/00_index.md",
       "url": "/07_regex/00_index/",
       "summary": "**Objetivo:** Tener Docker y Podman instalados y funcionando **SIN usar sudo**.\n\n### 1. Instalar Doc",
-      "overdue": false,
+      "overdue": true,
       "type": "homework"
     },
     {
@@ -129,18 +129,30 @@
       "file": "07_regex/00_index.md",
       "url": "/07_regex/00_index/",
       "summary": "**URL:** [https://alf.nu/RegexGolf?world=regex&level=r00](https://alf.nu/RegexGolf?world=regex&level",
-      "overdue": false,
+      "overdue": true,
       "type": "homework"
     },
     {
       "id": "7.2",
       "title": "Bandit OverTheWire - Niveles 6-10",
-      "due": "2026-02-12",
+      "due": "2026-02-17",
       "points": "20",
       "chapter": "Regex",
       "file": "07_regex/00_index.md",
       "url": "/07_regex/00_index/",
       "summary": "**URL:** [https://overthewire.org/wargames/bandit/](https://overthewire.org/wargames/bandit/)\n\n### O",
+      "overdue": false,
+      "type": "homework"
+    },
+    {
+      "id": "01.01",
+      "title": "Certificado de Docker basico",
+      "due": "2026-02-12",
+      "points": "20",
+      "chapter": "Containers",
+      "file": "08_containers/01_que_son_contenedores.md",
+      "url": "/08_containers/01_que_son_contenedores/",
+      "summary": "Hacer el curso de Docker basico de datacamp y subir el certificado pr github en pull request y agreg",
       "overdue": false,
       "type": "homework"
     },

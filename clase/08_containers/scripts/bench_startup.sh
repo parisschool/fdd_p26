@@ -1,60 +1,68 @@
 #!/bin/bash
-# bench_startup.sh — Mide latencia de arranque de contenedores
+# bench_startup.sh — Mide latencia de arranque de contenedores (LAUNCH cost)
+# Prueba: Docker vs Podman x Ubuntu vs Alpine + bare metal baseline
 # Uso: bash bench_startup.sh [repeticiones]
-# Salida: results/startup.csv
+# Salida: results/exp1_startup.csv
 set -e
 
 REPS=${1:-10}
-OUTFILE="results/startup.csv"
+OUTFILE="results/exp1_startup.csv"
 mkdir -p results
 
-echo "runtime,metric,value" > "$OUTFILE"
+echo "runtime,image,rep,startup_ms" > "$OUTFILE"
 
-echo "=== Startup Latency ($REPS repeticiones) ==="
+echo "=== Exp 1: Startup Latency ($REPS reps + 1 warm-up) ==="
 
-# Bare metal
+# --- Bare metal baseline ---
 echo "Midiendo bare metal..."
+# Warm-up (descartado)
+echo ok > /dev/null
 for i in $(seq 1 "$REPS"); do
     start_ns=$(date +%s%N)
     echo ok > /dev/null
     end_ns=$(date +%s%N)
-    ms=$(echo "scale=1; ($end_ns - $start_ns) / 1000000" | bc)
-    echo "bare,startup_ms,$ms" >> "$OUTFILE"
+    ms=$(echo "scale=2; ($end_ns - $start_ns) / 1000000" | bc)
+    echo "bare,none,$i,$ms" >> "$OUTFILE"
 done
 echo "  bare metal: listo"
 
-# Docker
+# --- Docker ---
 if command -v docker &>/dev/null; then
-    echo "Midiendo Docker..."
-    docker pull -q ubuntu > /dev/null 2>&1 || true
-    # Warm-up run (primera ejecución siempre es más lenta)
-    docker run --rm ubuntu echo ok > /dev/null 2>&1
-    for i in $(seq 1 "$REPS"); do
-        start_ns=$(date +%s%N)
-        docker run --rm ubuntu echo ok > /dev/null 2>&1
-        end_ns=$(date +%s%N)
-        ms=$(echo "scale=1; ($end_ns - $start_ns) / 1000000" | bc)
-        echo "docker,startup_ms,$ms" >> "$OUTFILE"
+    for image in ubuntu alpine; do
+        echo "Midiendo Docker + $image..."
+        docker pull -q "$image" > /dev/null 2>&1 || true
+        # Warm-up (descartado)
+        docker run --rm "$image" echo ok > /dev/null 2>&1
+        for i in $(seq 1 "$REPS"); do
+            start_ns=$(date +%s%N)
+            docker run --rm "$image" echo ok > /dev/null 2>&1
+            end_ns=$(date +%s%N)
+            ms=$(echo "scale=2; ($end_ns - $start_ns) / 1000000" | bc)
+            echo "docker,$image,$i,$ms" >> "$OUTFILE"
+        done
+        echo "  docker/$image: listo"
     done
-    echo "  docker: listo"
 else
     echo "  docker: no disponible, saltando"
 fi
 
-# Podman
+# --- Podman ---
 if command -v podman &>/dev/null; then
-    echo "Midiendo Podman..."
-    podman pull -q ubuntu > /dev/null 2>&1 || podman pull -q docker.io/library/ubuntu > /dev/null 2>&1 || true
-    # Warm-up run
-    podman run --rm ubuntu echo ok > /dev/null 2>&1
-    for i in $(seq 1 "$REPS"); do
-        start_ns=$(date +%s%N)
-        podman run --rm ubuntu echo ok > /dev/null 2>&1
-        end_ns=$(date +%s%N)
-        ms=$(echo "scale=1; ($end_ns - $start_ns) / 1000000" | bc)
-        echo "podman,startup_ms,$ms" >> "$OUTFILE"
+    for image in ubuntu alpine; do
+        echo "Midiendo Podman + $image..."
+        podman pull -q "$image" > /dev/null 2>&1 \
+            || podman pull -q "docker.io/library/$image" > /dev/null 2>&1 || true
+        # Warm-up (descartado)
+        podman run --rm "$image" echo ok > /dev/null 2>&1
+        for i in $(seq 1 "$REPS"); do
+            start_ns=$(date +%s%N)
+            podman run --rm "$image" echo ok > /dev/null 2>&1
+            end_ns=$(date +%s%N)
+            ms=$(echo "scale=2; ($end_ns - $start_ns) / 1000000" | bc)
+            echo "podman,$image,$i,$ms" >> "$OUTFILE"
+        done
+        echo "  podman/$image: listo"
     done
-    echo "  podman: listo"
 else
     echo "  podman: no disponible, saltando"
 fi
