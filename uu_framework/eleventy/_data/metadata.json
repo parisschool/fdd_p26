@@ -11,67 +11,54 @@
     "components": [],
     "has_frontmatter": true
   },
-  "a_stack/01_introduction/01_cuentas.md": {
-    "path": "clase/a_stack/01_introduction/01_cuentas.md",
-    "title": "Configuración de Cuentas",
+  "11_python_intermedio/03_buenas_practicas.md": {
+    "path": "clase/11_python_intermedio/03_buenas_practicas.md",
+    "title": "Buenas practicas en Python",
     "type": "lesson",
-    "order": 1,
+    "order": 3,
     "date": null,
     "summary": null,
     "tags": [],
     "due_date": null,
     "components": [
       {
-        "type": "homework",
+        "type": "exercise",
         "attrs": {
-          "id": "A.1.1",
-          "title": "Crear cuentas: LLMs y DataCamp",
-          "due": "2026-01-15",
-          "points": "0"
+          "title": "Corrige las violaciones de PEP 8",
+          "difficulty": "2"
         },
-        "content_preview": "Crea cuentas en las plataformas de LLM (Gemini, ChatGPT, Claude, etc.) y únete al grupo de DataCamp con tu correo @itam.mx."
-      }
-    ],
-    "has_frontmatter": false
-  },
-  "a_stack/01_introduction/00_index.md": {
-    "path": "clase/a_stack/01_introduction/00_index.md",
-    "title": "Módulo 1: Introducción",
-    "type": "lesson",
-    "order": 0,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [],
-    "has_frontmatter": false
-  },
-  "a_stack/03_os_setup/01_wsl_install.md": {
-    "path": "clase/a_stack/03_os_setup/01_wsl_install.md",
-    "title": "Guía de Sistema Operativo: WSL2 y Linux",
-    "type": "lesson",
-    "order": 1,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [
+        "content_preview": "Este codigo tiene al menos 8 violaciones de PEP 8. Identificalas todas y reescribe el codigo corregido:\n\n```python\nimport os,sys\nimport pandas as pd\nfrom pathlib import Path\nimport json\n\ndef Limpiar_D"
+      },
       {
-        "type": "homework",
+        "type": "exercise",
         "attrs": {
-          "id": "A.3.1",
-          "title": "Leer seccion A.3 OS Setup & Instalación de Unix ",
-          "due": "2026-01-20",
-          "points": "0"
+          "title": "Refactoriza con guard clauses",
+          "difficulty": "2"
         },
-        "content_preview": "Leer seccion A.3 completa.  s\nInstala WSL2 en tu computadora Windows siguiendo esta guía. Verifica que funciona ejecutando  `python3 --version` o `python --version` en la terminal de Ubuntu. Si tienes"
+        "content_preview": "Reescribe esta funcion usando guard clauses para eliminar la anidacion. La version final debe tener maximo un nivel de indentacion:\n\n```python\ndef procesar_transaccion(usuario, monto, moneda):\n    if "
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Agrega type hints",
+          "difficulty": "1"
+        },
+        "content_preview": "Agrega type hints a estas funciones. No cambies la logica, solo anota parametros y retorno:\n\n```python\ndef filtrar_mayores(personas, edad_minima):\n    return [p for p in personas if p[\"edad\"] >= edad_"
+      },
+      {
+        "type": "prompt",
+        "attrs": {
+          "title": "Revision de codigo para buenas practicas",
+          "for": "ChatGPT/Claude"
+        },
+        "content_preview": "Revisa el siguiente codigo Python y dame retroalimentacion sobre buenas practicas:\n\n```python\n[pega aqui tu codigo]\n```\n\nEvalua estos aspectos:\n1. **PEP 8**: convenciones de nombres, espaciado, import"
       }
     ],
     "has_frontmatter": false
   },
-  "a_stack/03_os_setup/02_browser_env.md": {
-    "path": "clase/a_stack/03_os_setup/02_browser_env.md",
-    "title": "Guía para Estudiantes: Usar GitHub Codespaces y Ona (antes Gitpod) Solo con el Navegador",
+  "11_python_intermedio/02_clases_y_objetos.md": {
+    "path": "clase/11_python_intermedio/02_clases_y_objetos.md",
+    "title": "Clases y Objetos en Python",
     "type": "lesson",
     "order": 2,
     "date": null,
@@ -80,21 +67,141 @@
     "due_date": null,
     "components": [
       {
-        "type": "homework",
+        "type": "exercise",
         "attrs": {
-          "id": "A.3.2",
-          "title": "Crear cuenta de GitHub y solicitar Student Pack",
-          "due": "2026-01-20",
-          "points": "0"
+          "title": "Coleccion con metodos magicos",
+          "difficulty": "2"
         },
-        "content_preview": "Crea tu cuenta de GitHub y solicita el GitHub Student Developer Pack siguiendo esta guía. Esto es requisito para las siguientes secciones del curso."
+        "content_preview": "Construye una clase `Coleccion` que soporte estas operaciones:\n\n```python\nc = Coleccion(\"frutas\", [\"manzana\", \"pera\", \"uva\", \"mango\"])\n\nlen(c)              # 4\nc[1]                # \"pera\"\n\"uva\" in c "
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Jerarquia de figuras geometricas",
+          "difficulty": "3"
+        },
+        "content_preview": "Disena una jerarquia de clases:\n\n1. Clase base `Figura` con metodos abstractos `area()` y `perimetro()` (que lancen `NotImplementedError`), y `__lt__` que compare por area.\n2. Subclases `Rectangulo`, "
+      },
+      {
+        "type": "prompt",
+        "attrs": {
+          "title": "Revisar diseno de clases",
+          "for": "ChatGPT/Claude"
+        },
+        "content_preview": "Tengo esta jerarquia de clases en Python:\n\n```python\n[pega aqui tu codigo]\n```\n\nRevisame:\n\n1. **Relaciones**: las herencias son realmente \"es un tipo de\"? Alguna deberia ser composicion?\n2. **Responsa"
       }
     ],
     "has_frontmatter": false
   },
-  "a_stack/03_os_setup/00_index.md": {
-    "path": "clase/a_stack/03_os_setup/00_index.md",
-    "title": "Módulo 3: Configuración del Sistema Operativo",
+  "11_python_intermedio/04_testing_y_documentacion.md": {
+    "path": "clase/11_python_intermedio/04_testing_y_documentacion.md",
+    "title": "Testing y documentacion en Python",
+    "type": "lesson",
+    "order": 4,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Docstrings estilo Google",
+          "difficulty": "1"
+        },
+        "content_preview": "Las siguientes funciones no tienen documentacion. Escribe docstrings estilo Google para cada una, incluyendo Args, Returns y al menos un Example:\n\n```python\ndef limpiar_texto(texto, quitar_numeros=Fal"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Tests para una Calculadora",
+          "difficulty": "2"
+        },
+        "content_preview": "Dada la siguiente clase, escribe un archivo `test_calculadora.py` con al menos 8 tests usando pytest:\n\n```python\n# calculadora.py\nclass Calculadora:\n    def __init__(self):\n        self.historial = []"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Parametrize a fondo",
+          "difficulty": "2"
+        },
+        "content_preview": "Escribe una funcion `clasificar_nota(nota)` que recibe un numero del 0 al 100 y retorna:\n\n- `\"Reprobado\"` si nota < 60\n- `\"Suficiente\"` si 60 <= nota < 70\n- `\"Bien\"` si 70 <= nota < 80\n- `\"Notable\"` s"
+      },
+      {
+        "type": "prompt",
+        "attrs": {
+          "title": "Generar tests para una funcion",
+          "for": "ChatGPT/Claude"
+        },
+        "content_preview": "Tengo la siguiente funcion de Python:\n\n```python\n[pega tu funcion aqui, con su docstring]\n```\n\nGenera tests exhaustivos usando pytest que cubran:\n\n1. El caso de uso normal (happy path)\n2. Casos borde "
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "11_python_intermedio/05_disenando_una_libreria.md": {
+    "path": "clase/11_python_intermedio/05_disenando_una_libreria.md",
+    "title": "Diseñando una librería",
+    "type": "lesson",
+    "order": 5,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Define tu quantum",
+          "difficulty": "1"
+        },
+        "content_preview": "Elige un dominio que te interese (o usa uno de estos):\n\n- Validación de datos (CSVs, JSONs, inputs de usuario)\n- Conversión de formatos (fechas, unidades, monedas, archivos)\n- Análisis de texto (frecu"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Vocabulario de tu librería",
+          "difficulty": "2"
+        },
+        "content_preview": "Para la librería que elegiste en el ejercicio anterior:\n\n1. Lista **5-7 sustantivos** (las cosas con las que trabaja tu librería)\n2. Lista **5-7 verbos** (las operaciones que hace)\n3. Para cada sustan"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Dream usage",
+          "difficulty": "2"
+        },
+        "content_preview": "Escribe el **dream usage** de tu librería. Máximo 15 líneas de código.\n\nEl código no tiene que funcionar — es lo que **deseas** que exista. Incluye:\n\n1. Los imports\n2. La configuración inicial (si la "
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Estructura y sketches",
+          "difficulty": "2"
+        },
+        "content_preview": "Para tu librería:\n\n1. Dibuja la **estructura del paquete** (árbol de directorios y archivos)\n2. Escribe las **firmas con docstrings** de las 3-4 funciones/clases más importantes\n3. Escribe el `__init_"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Tu documento de diseño",
+          "difficulty": "3"
+        },
+        "content_preview": "Escribe el documento de diseño completo para tu librería siguiendo la estructura de la sección 6.\n\n**Antes de empezar**, revisa:\n- ¿Tu quantum es realmente la cosa más pequeña útil?\n- ¿Tu dream usage "
+      },
+      {
+        "type": "prompt",
+        "attrs": {
+          "title": "Revisión de diseño entre compañeros",
+          "for": "Un compañero"
+        },
+        "content_preview": "Lee el documento de diseño de tu compañero y responde:\n\n1. **¿Entiendes el problema?** Lee solo la sección \"Problema\". ¿Podrías explicarlo con tus propias palabras?\n2. **¿El dream usage tiene sentido?"
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "11_python_intermedio/00_index.md": {
+    "path": "clase/11_python_intermedio/00_index.md",
+    "title": "Módulo 11: Python Intermedio",
     "type": "lesson",
     "order": 0,
     "date": null,
@@ -104,9 +211,9 @@
     "components": [],
     "has_frontmatter": false
   },
-  "a_stack/02_llms/01_conceptos_llm.md": {
-    "path": "clase/a_stack/02_llms/01_conceptos_llm.md",
-    "title": "Large Language Models (LLMs)",
+  "11_python_intermedio/01_paquetes_y_modulos.md": {
+    "path": "clase/11_python_intermedio/01_paquetes_y_modulos.md",
+    "title": "Paquetes y Modulos en Python",
     "type": "lesson",
     "order": 1,
     "date": null,
@@ -115,28 +222,30 @@
     "due_date": null,
     "components": [
       {
-        "type": "homework",
+        "type": "exercise",
         "attrs": {
-          "id": "A.2.1",
-          "title": "leer  A.2 LLMs & Curso: AI Assisted Coding for Developers",
-          "due": "2026-01-15",
-          "points": "20"
+          "title": "Explora sys.path y __pycache__",
+          "difficulty": "1"
         },
-        "content_preview": "Leer toda la seccion A.2 LLMs, y despues completar el curso.  \nCompleta el curso [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers). La evide"
+        "content_preview": "1. Ejecuta en Python:\n\n```python\nimport sys\nfor i, ruta in enumerate(sys.path):\n    print(f\"{i}: {ruta}\")\n```\n\nResponde: cual es el primer directorio? Por que esta ahi?\n\n2. Crea `prueba_modulo.py` con"
+      },
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Mini paquete instalable",
+          "difficulty": "2"
+        },
+        "content_preview": "Crea un paquete instalable `texto_utils`:\n\n```\nmi_proyecto/\n├── texto_utils/\n│   ├── __init__.py\n│   ├── limpieza.py       # limpiar_espacios(), quitar_acentos()\n│   └── estadisticas.py   # contar_pal"
+      },
+      {
+        "type": "prompt",
+        "attrs": {
+          "title": "Revisar estructura de paquete",
+          "for": "ChatGPT/Claude"
+        },
+        "content_preview": "Estoy creando un paquete de Python. Esta es mi estructura:\n\n```\n[pega aqui tu arbol de directorios]\n```\n\nMi `__init__.py`:\n\n```python\n[pega tu codigo]\n```\n\nMi `setup.py` o `pyproject.toml`:\n\n```python"
       }
     ],
-    "has_frontmatter": false
-  },
-  "a_stack/02_llms/00_index.md": {
-    "path": "clase/a_stack/02_llms/00_index.md",
-    "title": "Módulo 2: Large Language Models (LLMs)",
-    "type": "lesson",
-    "order": 0,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [],
     "has_frontmatter": false
   },
   "06_git/03_workflow.md": {
@@ -2283,5 +2392,133 @@
       }
     ],
     "has_frontmatter": true
+  },
+  "a_stack/01_introduction/01_cuentas.md": {
+    "path": "clase/a_stack/01_introduction/01_cuentas.md",
+    "title": "Configuración de Cuentas",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.1.1",
+          "title": "Crear cuentas: LLMs y DataCamp",
+          "due": "2026-01-15",
+          "points": "0"
+        },
+        "content_preview": "Crea cuentas en las plataformas de LLM (Gemini, ChatGPT, Claude, etc.) y únete al grupo de DataCamp con tu correo @itam.mx."
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/01_introduction/00_index.md": {
+    "path": "clase/a_stack/01_introduction/00_index.md",
+    "title": "Módulo 1: Introducción",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/01_wsl_install.md": {
+    "path": "clase/a_stack/03_os_setup/01_wsl_install.md",
+    "title": "Guía de Sistema Operativo: WSL2 y Linux",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.3.1",
+          "title": "Leer seccion A.3 OS Setup & Instalación de Unix ",
+          "due": "2026-01-20",
+          "points": "0"
+        },
+        "content_preview": "Leer seccion A.3 completa.  s\nInstala WSL2 en tu computadora Windows siguiendo esta guía. Verifica que funciona ejecutando  `python3 --version` o `python --version` en la terminal de Ubuntu. Si tienes"
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/02_browser_env.md": {
+    "path": "clase/a_stack/03_os_setup/02_browser_env.md",
+    "title": "Guía para Estudiantes: Usar GitHub Codespaces y Ona (antes Gitpod) Solo con el Navegador",
+    "type": "lesson",
+    "order": 2,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.3.2",
+          "title": "Crear cuenta de GitHub y solicitar Student Pack",
+          "due": "2026-01-20",
+          "points": "0"
+        },
+        "content_preview": "Crea tu cuenta de GitHub y solicita el GitHub Student Developer Pack siguiendo esta guía. Esto es requisito para las siguientes secciones del curso."
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/00_index.md": {
+    "path": "clase/a_stack/03_os_setup/00_index.md",
+    "title": "Módulo 3: Configuración del Sistema Operativo",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
+  },
+  "a_stack/02_llms/01_conceptos_llm.md": {
+    "path": "clase/a_stack/02_llms/01_conceptos_llm.md",
+    "title": "Large Language Models (LLMs)",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.2.1",
+          "title": "leer  A.2 LLMs & Curso: AI Assisted Coding for Developers",
+          "due": "2026-01-15",
+          "points": "20"
+        },
+        "content_preview": "Leer toda la seccion A.2 LLMs, y despues completar el curso.  \nCompleta el curso [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers). La evide"
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/02_llms/00_index.md": {
+    "path": "clase/a_stack/02_llms/00_index.md",
+    "title": "Módulo 2: Large Language Models (LLMs)",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
   }
 }
