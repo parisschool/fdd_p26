@@ -86,7 +86,7 @@ Completa el curso y sube la certificacion a tu directorio de certificaciones, cr
 :::
 
 
-:::homework{id="9.6" title="Curso de Polars" due="2026-03-09" points="20"}
+:::homework{id="9.6" title="Curso de Polars" due="2026-03-10" points="20"}
 
 Curso de Python:https://app.datacamp.com/learn/courses/introduction-to-polars 
 
