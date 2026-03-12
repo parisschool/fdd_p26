@@ -11,6 +11,134 @@
     "components": [],
     "has_frontmatter": true
   },
+  "a_stack/01_introduction/01_cuentas.md": {
+    "path": "clase/a_stack/01_introduction/01_cuentas.md",
+    "title": "Configuración de Cuentas",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.1.1",
+          "title": "Crear cuentas: LLMs y DataCamp",
+          "due": "2026-01-15",
+          "points": "0"
+        },
+        "content_preview": "Crea cuentas en las plataformas de LLM (Gemini, ChatGPT, Claude, etc.) y únete al grupo de DataCamp con tu correo @itam.mx."
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/01_introduction/00_index.md": {
+    "path": "clase/a_stack/01_introduction/00_index.md",
+    "title": "Módulo 1: Introducción",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/01_wsl_install.md": {
+    "path": "clase/a_stack/03_os_setup/01_wsl_install.md",
+    "title": "Guía de Sistema Operativo: WSL2 y Linux",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.3.1",
+          "title": "Leer seccion A.3 OS Setup & Instalación de Unix ",
+          "due": "2026-01-20",
+          "points": "0"
+        },
+        "content_preview": "Leer seccion A.3 completa.  s\nInstala WSL2 en tu computadora Windows siguiendo esta guía. Verifica que funciona ejecutando  `python3 --version` o `python --version` en la terminal de Ubuntu. Si tienes"
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/02_browser_env.md": {
+    "path": "clase/a_stack/03_os_setup/02_browser_env.md",
+    "title": "Guía para Estudiantes: Usar GitHub Codespaces y Ona (antes Gitpod) Solo con el Navegador",
+    "type": "lesson",
+    "order": 2,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.3.2",
+          "title": "Crear cuenta de GitHub y solicitar Student Pack",
+          "due": "2026-01-20",
+          "points": "0"
+        },
+        "content_preview": "Crea tu cuenta de GitHub y solicita el GitHub Student Developer Pack siguiendo esta guía. Esto es requisito para las siguientes secciones del curso."
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/03_os_setup/00_index.md": {
+    "path": "clase/a_stack/03_os_setup/00_index.md",
+    "title": "Módulo 3: Configuración del Sistema Operativo",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
+  },
+  "a_stack/02_llms/01_conceptos_llm.md": {
+    "path": "clase/a_stack/02_llms/01_conceptos_llm.md",
+    "title": "Large Language Models (LLMs)",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "homework",
+        "attrs": {
+          "id": "A.2.1",
+          "title": "leer  A.2 LLMs & Curso: AI Assisted Coding for Developers",
+          "due": "2026-01-15",
+          "points": "20"
+        },
+        "content_preview": "Leer toda la seccion A.2 LLMs, y despues completar el curso.  \nCompleta el curso [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers). La evide"
+      }
+    ],
+    "has_frontmatter": false
+  },
+  "a_stack/02_llms/00_index.md": {
+    "path": "clase/a_stack/02_llms/00_index.md",
+    "title": "Módulo 2: Large Language Models (LLMs)",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": false
+  },
   "11_python_intermedio/05_paquetes_instalables.md": {
     "path": "clase/11_python_intermedio/05_paquetes_instalables.md",
     "title": "Paquetes instalables: de código a librería",
@@ -1694,6 +1822,178 @@
     ],
     "has_frontmatter": false
   },
+  "16_computo/06_librerias_y_decision.md": {
+    "path": "clase/16_computo/06_librerias_y_decision.md",
+    "title": "Librerías Python y Árbol de Decisión",
+    "type": "lesson",
+    "order": 6,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Elegir la herramienta correcta"
+        },
+        "content_preview": "Para cada escenario, elige la librería apropiada y justifica usando el árbol de decisión:\n\n1. Descargar 500 imágenes de URLs distintas (sin librería async disponible)\n2. Calcular PCA sobre una matriz "
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/04b_asyncio_patrones.md": {
+    "path": "clase/16_computo/04b_asyncio_patrones.md",
+    "title": "asyncio — Patrones Avanzados y Anti-patrones",
+    "type": "lesson",
+    "order": 4,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Diagnosticar anti-patrones"
+        },
+        "content_preview": "Lee cada fragmento y determina: (1) qué anti-patrón es, (2) cuál es la consecuencia formal, (3) cómo corregirlo.\n\n```python\n# Fragmento A\nasync def buscar(query):\n    r1 = await buscar_en_bd(query)\n  "
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/02_secuencial.md": {
+    "path": "clase/16_computo/02_secuencial.md",
+    "title": "El Framework Matemático y el Modelo Secuencial",
+    "type": "lesson",
+    "order": 2,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Análisis del modelo secuencial"
+        },
+        "content_preview": "Dado un servidor con τ = {τ₁, τ₂, τ₃} donde:\n- τ₁: exec = [0, 0.5], wait = [0.5, 2.0], exec = [2.0, 2.2]\n- τ₂: exec = [2.2, 3.0] (CPU-bound, sin wait)\n- τ₃: exec = [3.0, 3.2], wait = [3.2, 5.5], exec "
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/01_procesos_y_hilos.md": {
+    "path": "clase/16_computo/01_procesos_y_hilos.md",
+    "title": "Procesos, Hilos y el GIL",
+    "type": "lesson",
+    "order": 1,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Reflexión previa al código"
+        },
+        "content_preview": "Antes de abrir el notebook, responde: si tu chatbot recibe 10 peticiones simultáneas y cada una tarda 2 segundos en completarse, ¿cuánto tiempo espera el último usuario con un servidor secuencial? ¿Qu"
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/07_distribuido_intro.md": {
+    "path": "clase/16_computo/07_distribuido_intro.md",
+    "title": "Cómputo Distribuido — Introducción Conceptual y Síntesis",
+    "type": "lesson",
+    "order": 7,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Reflexión de cierre"
+        },
+        "content_preview": "Regresa al ejercicio de `01_procesos_y_hilos.md`: \"si tu chatbot recibe 10 peticiones simultáneas y cada una tarda 2 segundos, ¿cuánto tiempo espera el último usuario?\"\n\nAhora responde para los 4 mode"
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/05_paralelismo.md": {
+    "path": "clase/16_computo/05_paralelismo.md",
+    "title": "Paralelismo — M5, Ley de Amdahl y Chatbot v3",
+    "type": "lesson",
+    "order": 5,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Calcular con Amdahl"
+        },
+        "content_preview": "Un programa tarda 100s secuencialmente. El profiling muestra:\n- 30s de lectura de archivos (I/O-bound, no paralelizable con cores)\n- 70s de procesamiento numérico (CPU-bound, paralelizable)\n\n1. Calcul"
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/00_index.md": {
+    "path": "clase/16_computo/00_index.md",
+    "title": "Cómputo: Secuencial, Concurrente, Paralelo y Distribuido",
+    "type": "lesson",
+    "order": 0,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [],
+    "has_frontmatter": true
+  },
+  "16_computo/03_concurrencia_y_asincronia.md": {
+    "path": "clase/16_computo/03_concurrencia_y_asincronia.md",
+    "title": "Concurrencia, Asincronía y los Modelos M2–M4",
+    "type": "lesson",
+    "order": 3,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Clasificar modelos de ejecución"
+        },
+        "content_preview": "Para cada escenario, indica qué modelo (M1–M4) describe mejor la situación y justifica con las definiciones formales:\n\n1. Un script que hace `requests.get(url1)`, luego `requests.get(url2)`, luego `re"
+      }
+    ],
+    "has_frontmatter": true
+  },
+  "16_computo/04a_asyncio_fundamentos.md": {
+    "path": "clase/16_computo/04a_asyncio_fundamentos.md",
+    "title": "asyncio — Fundamentos: Event Loop, async/await y gather",
+    "type": "lesson",
+    "order": 4,
+    "date": null,
+    "summary": null,
+    "tags": [],
+    "due_date": null,
+    "components": [
+      {
+        "type": "exercise",
+        "attrs": {
+          "title": "Predecir tiempos de gather"
+        },
+        "content_preview": "Dadas las siguientes coroutines:\n\n```python\nasync def tarea_a(): await asyncio.sleep(1.0); return \"A\"\nasync def tarea_b(): await asyncio.sleep(2.0); return \"B\"\nasync def tarea_c(): await asyncio.sleep"
+      }
+    ],
+    "has_frontmatter": true
+  },
   "13_pandas_io/02_combinando_datos.md": {
     "path": "clase/13_pandas_io/02_combinando_datos.md",
     "title": "Combinando DataFrames",
@@ -2708,133 +3008,5 @@
       }
     ],
     "has_frontmatter": true
-  },
-  "a_stack/01_introduction/01_cuentas.md": {
-    "path": "clase/a_stack/01_introduction/01_cuentas.md",
-    "title": "Configuración de Cuentas",
-    "type": "lesson",
-    "order": 1,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [
-      {
-        "type": "homework",
-        "attrs": {
-          "id": "A.1.1",
-          "title": "Crear cuentas: LLMs y DataCamp",
-          "due": "2026-01-15",
-          "points": "0"
-        },
-        "content_preview": "Crea cuentas en las plataformas de LLM (Gemini, ChatGPT, Claude, etc.) y únete al grupo de DataCamp con tu correo @itam.mx."
-      }
-    ],
-    "has_frontmatter": false
-  },
-  "a_stack/01_introduction/00_index.md": {
-    "path": "clase/a_stack/01_introduction/00_index.md",
-    "title": "Módulo 1: Introducción",
-    "type": "lesson",
-    "order": 0,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [],
-    "has_frontmatter": false
-  },
-  "a_stack/03_os_setup/01_wsl_install.md": {
-    "path": "clase/a_stack/03_os_setup/01_wsl_install.md",
-    "title": "Guía de Sistema Operativo: WSL2 y Linux",
-    "type": "lesson",
-    "order": 1,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [
-      {
-        "type": "homework",
-        "attrs": {
-          "id": "A.3.1",
-          "title": "Leer seccion A.3 OS Setup & Instalación de Unix ",
-          "due": "2026-01-20",
-          "points": "0"
-        },
-        "content_preview": "Leer seccion A.3 completa.  s\nInstala WSL2 en tu computadora Windows siguiendo esta guía. Verifica que funciona ejecutando  `python3 --version` o `python --version` en la terminal de Ubuntu. Si tienes"
-      }
-    ],
-    "has_frontmatter": false
-  },
-  "a_stack/03_os_setup/02_browser_env.md": {
-    "path": "clase/a_stack/03_os_setup/02_browser_env.md",
-    "title": "Guía para Estudiantes: Usar GitHub Codespaces y Ona (antes Gitpod) Solo con el Navegador",
-    "type": "lesson",
-    "order": 2,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [
-      {
-        "type": "homework",
-        "attrs": {
-          "id": "A.3.2",
-          "title": "Crear cuenta de GitHub y solicitar Student Pack",
-          "due": "2026-01-20",
-          "points": "0"
-        },
-        "content_preview": "Crea tu cuenta de GitHub y solicita el GitHub Student Developer Pack siguiendo esta guía. Esto es requisito para las siguientes secciones del curso."
-      }
-    ],
-    "has_frontmatter": false
-  },
-  "a_stack/03_os_setup/00_index.md": {
-    "path": "clase/a_stack/03_os_setup/00_index.md",
-    "title": "Módulo 3: Configuración del Sistema Operativo",
-    "type": "lesson",
-    "order": 0,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [],
-    "has_frontmatter": false
-  },
-  "a_stack/02_llms/01_conceptos_llm.md": {
-    "path": "clase/a_stack/02_llms/01_conceptos_llm.md",
-    "title": "Large Language Models (LLMs)",
-    "type": "lesson",
-    "order": 1,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [
-      {
-        "type": "homework",
-        "attrs": {
-          "id": "A.2.1",
-          "title": "leer  A.2 LLMs & Curso: AI Assisted Coding for Developers",
-          "due": "2026-01-15",
-          "points": "20"
-        },
-        "content_preview": "Leer toda la seccion A.2 LLMs, y despues completar el curso.  \nCompleta el curso [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers). La evide"
-      }
-    ],
-    "has_frontmatter": false
-  },
-  "a_stack/02_llms/00_index.md": {
-    "path": "clase/a_stack/02_llms/00_index.md",
-    "title": "Módulo 2: Large Language Models (LLMs)",
-    "type": "lesson",
-    "order": 0,
-    "date": null,
-    "summary": null,
-    "tags": [],
-    "due_date": null,
-    "components": [],
-    "has_frontmatter": false
   }
 }

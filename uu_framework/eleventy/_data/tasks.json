@@ -249,7 +249,7 @@
       "file": "09_python/00_index.md",
       "url": "/09_python/00_index/",
       "summary": "Curso de Python:https://app.datacamp.com/learn/courses/introduction-to-polars \n\nCompleta el curso y ",
-      "overdue": false,
+      "overdue": true,
       "type": "homework"
     },
     {
@@ -273,7 +273,7 @@
       "file": "09_python/00_index.md",
       "url": "/09_python/00_index/",
       "summary": "Curso de Python:https://app.datacamp.com/learn/courses/introduction-to-fastapi\n\nCompleta el curso y ",
-      "overdue": false,
+      "overdue": true,
       "type": "homework"
     },
     {
